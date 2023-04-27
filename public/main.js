@@ -1,30 +1,32 @@
 
 let myForm = document.getElementById('myform');
 myForm .addEventListener('submit',onSubmit)
-let ul = document.getElementById('showusers')
+let ul = document.getElementById('expenses')
 ul.addEventListener('click',onUpdate)    
 let edit = false;
 let id;
 let occurence=0;
 function onSubmit(e){
     e.preventDefault();
-    let userName = document.getElementById('uname').value
-    let pNumber = document.getElementById('pnumber').value
-    let email = document.getElementById('email').value
-    let userDetails = {userName,pNumber,email}
-    console.log(userDetails)
-     document.getElementById('uname').value=""
-     document.getElementById('pnumber').value=""
-     document.getElementById('email').value=""
+    let amount = document.getElementById('amount').value
+    let description = document.getElementById('description').value
+    let category = document.getElementById('category').value
+    let expDetails = {amount,description,category}
+    console.log(expDetails)
+     document.getElementById('amount').value=""
+     document.getElementById('description').value=""
+     document.getElementById('category').value=""
+     if(expDetails.amount.length && expDetails.description.length && expDetails.category.length){
      if(!edit)
-     postUsers(userDetails)
+     postUsers(expDetails)
      else
-     putUser(userDetails)
+     putUser(expDetails)
+     }
 }
 
 const print = (item) =>{
   let li = document.createElement('li')
-  li.appendChild(document.createTextNode(`${item.uname} ${item.pnumber} ${item.email}`))
+  li.appendChild(document.createTextNode(`${item.amount} - ${item.description} - ${item.category}`))
   let editBtn = document.createElement('button')
   let delBtn = document.createElement('button')
   editBtn.appendChild(document.createTextNode('Edit'))
@@ -39,12 +41,10 @@ const print = (item) =>{
 }
 
 const getUsers = (occurence) =>{
-   if(occurence == 1 || occurence == 0){
-     let parentElement = document.querySelector('#showusers')
+
+     let parentElement = document.querySelector('#expenses')
      parentElement.innerHTML=''
-     occurence++;
-   }
-     axios.get('http://localhost:3001/booking/users')
+     axios.get('http://localhost:3001/admin/expenses')
      .then(response => {
          // console.log('response',response)
          // console.log('response.data',response.data)
@@ -56,30 +56,31 @@ const getUsers = (occurence) =>{
 
  document.addEventListener('DOMContentLoaded',getUsers)
 
-const postUsers = async (user) =>{
- axios.post('http://localhost:3001/booking/user',user)
+const postUsers = async (expense) =>{
+ console.log('post',expense)
+ axios.post('http://localhost:3001/admin/expense',expense)
  .then(() => {
     // console.log('data sended from frontendend')
-     getUsers(1)
+     getUsers()
 })
 .catch(err => console.log('err',err))
 }
 
-const putUser = async (user) =>{
-     let response = await axios.put(`http://localhost:3001/booking/user/${id}`,user)
+const putUser = async (expense) =>{
+     let response = await axios.put(`http://localhost:3001/admin/expense/${id}`,expense)
      edit = false;
-     getUsers(1)
+     getUsers()
 }
 
 const deleteUser = async (id) =>{
    //  console.log('del id',id)
-     let response = await axios.delete(`http://localhost:3001/booking/user/${id}`)
+     let response = await axios.delete(`http://localhost:3001/admin/expense/${id}`)
      //console.log('deleted')
-     getUsers(1)
+     getUsers()
 }
 
 function onUpdate(e){
-    // console.log(e.target)
+     console.log(e.target)
      
      if(e.target.getAttribute('class') == 'delbtn float-right m-1'){
           let id = e.target.getAttribute('id') 
@@ -95,12 +96,13 @@ function onUpdate(e){
                if(btn){
                let btnId = btn.getAttribute('id')
                if(btnId == id)
-                data = item.textContent.slice(0,-10).split(" ")
+                data = item.textContent.slice(0,-10).split(" - ")
+                //console.log(data)
                }
           })
-          document.getElementById('uname').value=data[0]
-          document.getElementById('pnumber').value=data[1]
-          document.getElementById('email').value=data[2]
+          document.getElementById('amount').value=data[0]
+          document.getElementById('description').value=data[1]
+          document.getElementById('category').value=data[2]
      }
 
     // console.log('onUpdate')

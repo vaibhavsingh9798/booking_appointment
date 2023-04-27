@@ -9,7 +9,7 @@ app.use(cors())
 //app.use(bodyParser.urlencoded({extended:false}))
 app.use(bodyParser.json())
 
-app.use('/booking',userRoutes)
+app.use('/admin',userRoutes)
 
 sequelize.sync()
 .then(res =>{
